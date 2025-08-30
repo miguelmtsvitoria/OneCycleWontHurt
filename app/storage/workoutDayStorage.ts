@@ -695,6 +695,20 @@ export const DEFAULT_WORKOUT_DAYS: Workout[] = [
 			},
 		]
 	},
+	{
+		name: 'Running',
+		date: '2025-08-30',
+		exercises: [
+			{
+				exerciseName: 'Running',
+				exerciseType: 'Distance',
+				weight: 80,
+				repetitions: 8,
+				time: 32,
+				distance: 5,
+			},
+		]
+	},
 ];
 
 export async function clearAllMyWorkouts() {

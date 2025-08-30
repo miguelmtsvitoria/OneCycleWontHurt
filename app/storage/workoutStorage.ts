@@ -34,6 +34,12 @@ export const DEFAULT_WORKOUT_NAMES: Workout[] = [
 			'Lunges', 'Lunges',
 		]
 	},
+	{
+		name: 'Running',
+		exercises: [
+			'Running',
+		]
+	},
 ];
 
 export async function clearAllWorkouts() {
