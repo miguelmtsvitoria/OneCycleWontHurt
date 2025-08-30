@@ -476,18 +476,20 @@ export default function ExercisesScreen() {
 						<Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 12, alignSelf: 'flex-start' }}>Add Exercise</Text>
 						<TextInput
 							style={[styles.input, { alignSelf: 'stretch' }]}
-							placeholder="Exercise Name"
+							placeholder="Exercise Name..."
+                            placeholderTextColor="#888888ac"
 							value={newName}
 							onChangeText={setNewName}
 						/>
 						<Text style={styles.categoryLabel}>Exercise category:</Text>
-						<View style={{ flexDirection: 'row', justifyContent: 'space-between', marginVertical: 12 }}>
-							{typeOptions.map(opt => (
+						<View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', marginVertical: 12 }}>
+							{typeOptions.map((opt, idx) => (
 								<TouchableOpacity
 									key={opt.value}
 									style={[
 										styles.typeOption,
 										newType === opt.value && styles.typeOptionSelected,
+										{ width: '48%', marginBottom: 8 } // 2 per row, small gap
 									]}
 									onPress={() => setNewType(opt.value as any)}
 								>
@@ -909,14 +911,16 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
 	},
 	typeOption: {
-		flex: 1,
-		padding: 12,
+		flex: 0,
+		paddingVertical: 8, // reduced height
+		paddingHorizontal: 0,
 		borderWidth: 1,
 		borderColor: '#ccc',
 		borderRadius: 8,
 		alignItems: 'center',
 		justifyContent: 'center',
 		backgroundColor: '#f9f9f9',
+		minHeight: 36, // smaller min height
 	},
 	typeOptionSelected: {
 		borderColor: 'red',
