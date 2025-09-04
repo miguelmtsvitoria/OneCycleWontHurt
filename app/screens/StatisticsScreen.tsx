@@ -186,7 +186,7 @@ export default function StatisticsScreen() {
       }
 
       await MailComposer.composeAsync({
-        recipients: ['miglas.vitoria@gmail.com'], // You can pre-fill an email here if you want
+        recipients: [''],
         subject: 'One Cycle Export',
         body: 'Attached is your exported workout data.',
         attachments: [fileUri],
