@@ -17,7 +17,7 @@ const BUTTONS = [
 ];
 
 const PIE_LABELS = [
-  'Chest', 'Back', 'Biceps', 'Triceps', 'Legs', 'Shoulders', 'Abs', 'Cardio'
+  'Chest', 'Back', 'Biceps', 'Triceps', 'Legs', 'Shoulders', 'Abs'
 ];
 
 const PIE_COLORS = [
@@ -28,7 +28,6 @@ const PIE_COLORS = [
   '#fbc02d',   // Biceps
   '#388e3c',   // Triceps
   '#bf8600ff',   // Abs
-  '#0097a7',   // Cardio
 ];
 
 const PIE_VALUES = [
@@ -39,7 +38,6 @@ const PIE_VALUES = [
   { value: 10, color: '#fbc02d' },      // Biceps
   { value: 8, color: '#388e3c' },       // Triceps
   { value: 5, color: '#bf8600ff' },       // Abs
-  { value: 10, color: '#0097a7' },      // Cardio
 ];
 
 // Helper to parse and compare dates
@@ -89,6 +87,24 @@ function isWithinRangeOrDays(dateStr: string, range: { start: Date, end: Date, d
   return d >= range.start && d <= range.end;
 }
 
+// Helper for arrow icon
+function ProgressArrow({ value }: { value: number | null }) {
+  if (value === null) return null;
+  if (value > 0) {
+    // Upward triangle
+    return (
+      <Ionicons name="caret-up" size={18} color="green" style={{ marginLeft: 6 }} />
+    );
+  }
+  if (value < 0) {
+    // Downward triangle
+    return (
+      <Ionicons name="caret-down" size={18} color="red" style={{ marginLeft: 6 }} />
+    );
+  }
+  return null;
+}
+
 export default function StatisticsScreen() {
   const [selected, setSelected] = useState(0);
 
@@ -107,6 +123,11 @@ export default function StatisticsScreen() {
   });
 
   const [pieValues, setPieValues] = useState<{ value: number, color: string }[]>(PIE_VALUES);
+  const [progress, setProgress] = useState({
+    bench1rmDiff: null as number | null,
+    squat1rmDiff: null as number | null,
+    deadlift1rmDiff: null as number | null,
+  });
 
   // Open calendar when "Choose Dates" is pressed
   const handleSegmentPress = (idx: number) => {
@@ -179,6 +200,49 @@ export default function StatisticsScreen() {
       const categoryCounts: Record<string, number> = {
         Chest: 0, Back: 0, Biceps: 0, Triceps: 0, Legs: 0, Shoulders: 0, Abs: 0, Cardio: 0
       };
+
+      // --- 1RM Progress Calculation Helper ---
+      function get1RMDiff(workouts: any[], exerciseName: string) {
+        const filtered = workouts
+          .filter(w => isWithinRangeOrDays(w.date, range))
+          .filter(w => w.exercises.some((ex: any) =>
+            ex.exerciseName.toLowerCase().includes(exerciseName)
+          ))
+          .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+        if (filtered.length === 0) return null;
+
+        const calc1RM = (ex: any) =>
+          (ex.weight || 0) * (1 + ((ex.repetitions || 0) / 30));
+
+        const best1RM = (workout: any) =>
+          Math.max(
+            ...workout.exercises
+              .filter((ex: any) =>
+                ex.exerciseName.toLowerCase().includes(exerciseName) &&
+                ex.weight && ex.repetitions
+              )
+              .map(calc1RM),
+            0
+          );
+
+        const initial1RM = best1RM(filtered[0]);
+        const final1RM = best1RM(filtered[filtered.length - 1]);
+        return final1RM - initial1RM;
+      }
+      // --- End Helper ---
+
+      const bench1rmDiff = get1RMDiff(workouts, 'bench press');
+      const squat1rmDiff = get1RMDiff(workouts, 'squat');
+      const deadlift1rmDiff = get1RMDiff(workouts, 'deadlift');
+
+      setProgress({
+        bench1rmDiff: bench1rmDiff !== null ? bench1rmDiff : null,
+        squat1rmDiff: squat1rmDiff !== null ? squat1rmDiff : null,
+        deadlift1rmDiff: deadlift1rmDiff !== null ? deadlift1rmDiff : null,
+      });
+
+      // --- End 1RM Progress Calculation ---
 
       for (const w of workouts) {
         if (!isWithinRangeOrDays(w.date, range)) continue;
@@ -310,9 +374,33 @@ export default function StatisticsScreen() {
         {/* Progress */}
         <Text style={styles.sectionTitle}>Progress</Text>
         <View style={styles.statsBlock}>
-          <Text style={styles.statsLabel}>1RM Bench press: <Text style={styles.statsValue}>-</Text></Text>
-          <Text style={styles.statsLabel}>1RM Squat: <Text style={styles.statsValue}>-</Text></Text>
-          <Text style={styles.statsLabel}>1RM Deadlift: <Text style={styles.statsValue}>-</Text></Text>
+          <Text style={styles.statsLabel}>
+            1RM Bench press:{' '}
+            <Text style={styles.statsValue}>
+              {progress.bench1rmDiff !== null
+                ? `${progress.bench1rmDiff >= 0 ? '+' : ''}${progress.bench1rmDiff.toFixed(1)} kg `
+                : '-'}
+            </Text>
+            <ProgressArrow value={progress.bench1rmDiff} />
+          </Text>
+          <Text style={styles.statsLabel}>
+            1RM Squat:{' '}
+            <Text style={styles.statsValue}>
+              {progress.squat1rmDiff !== null
+                ? `${progress.squat1rmDiff >= 0 ? '+' : ''}${progress.squat1rmDiff.toFixed(1)} kg `
+                : '-'}
+            </Text>
+            <ProgressArrow value={progress.squat1rmDiff} />
+          </Text>
+          <Text style={styles.statsLabel}>
+            1RM Deadlift:{' '}
+            <Text style={styles.statsValue}>
+              {progress.deadlift1rmDiff !== null
+                ? `${progress.deadlift1rmDiff >= 0 ? '+' : ''}${progress.deadlift1rmDiff.toFixed(1)} kg `
+                : '-'}
+            </Text>
+            <ProgressArrow value={progress.deadlift1rmDiff} />
+          </Text>
         </View>
       </ScrollView>
 
