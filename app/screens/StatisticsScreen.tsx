@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker"; // npm install react-native-modal-datetime-picker
 import PieChart from 'react-native-pie-chart';
@@ -12,6 +12,7 @@ import { loadWorkouts } from '../storage/workoutStorage';
 const BUTTONS = [
   { label: 'Last 30 days' },
   { label: 'This year' },
+  { label: 'All time' },
   { label: 'Choose Dates' },
 ];
 
@@ -41,6 +42,53 @@ const PIE_VALUES = [
   { value: 10, color: '#0097a7' },      // Cardio
 ];
 
+// Helper to parse and compare dates
+function isWithinRange(dateStr: string, start: Date, end: Date) {
+  const d = new Date(dateStr);
+  return d >= start && d <= end;
+}
+
+function getDateRange(selected: number, startDate: Date | null, endDate: Date | null) {
+  const now = new Date();
+  if (selected === 0) {
+    // Last 30 days
+    const start = new Date(now);
+    start.setDate(now.getDate() - 30);
+    return { start, end: now, days: null };
+  }
+  if (selected === 1) {
+    // This year
+    const start = new Date(now.getFullYear(), 0, 1);
+    return { start, end: now, days: null };
+  }
+  if (selected === 2) {
+    // All time: use a very early start date
+    const start = new Date(2000, 0, 1);
+    return { start, end: now, days: null };
+  }
+  if (selected === 3 && startDate && endDate) {
+    // Choose Dates
+    const days: string[] = [];
+    let d = new Date(startDate);
+    while (d <= endDate) {
+      days.push(d.toISOString().slice(0, 10)); // Format: YYYY-MM-DD
+      d.setDate(d.getDate() + 1);
+    }
+    return { start: startDate, end: endDate, days };
+  }
+  return null;
+}
+
+function isWithinRangeOrDays(dateStr: string, range: { start: Date, end: Date, days: string[] | null }) {
+  if (range.days) {
+    // Only for "Choose Dates": match exact days
+    return range.days.includes(dateStr.slice(0, 10));
+  }
+  // For other ranges: between start and end
+  const d = new Date(dateStr);
+  return d >= range.start && d <= range.end;
+}
+
 export default function StatisticsScreen() {
   const [selected, setSelected] = useState(0);
 
@@ -49,6 +97,16 @@ export default function StatisticsScreen() {
   const [dateStep, setDateStep] = useState<'start' | 'end'>('start');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+
+  const [stats, setStats] = useState({
+    hypertrophy: 0,
+    cardio: 0,
+    weightLifted: 0,
+    distance: 0,
+    sets: 0,
+  });
+
+  const [pieValues, setPieValues] = useState<{ value: number, color: string }[]>(PIE_VALUES);
 
   // Open calendar when "Choose Dates" is pressed
   const handleSegmentPress = (idx: number) => {
@@ -108,6 +166,67 @@ export default function StatisticsScreen() {
     }
   };
 
+  useEffect(() => {
+    async function calcStats() {
+      const workouts = await loadMyWorkouts();
+      const exercises = await loadExercises();
+      const range = getDateRange(selected, startDate, endDate);
+      if (!range) return;
+
+      let hypertrophy = 0, cardio = 0, weightLifted = 0, distance = 0, sets = 0;
+
+      // Training volume by category
+      const categoryCounts: Record<string, number> = {
+        Chest: 0, Back: 0, Biceps: 0, Triceps: 0, Legs: 0, Shoulders: 0, Abs: 0, Cardio: 0
+      };
+
+      for (const w of workouts) {
+        if (!isWithinRangeOrDays(w.date, range)) continue;
+
+        let hasRepExercise = false;
+
+        for (const ex of w.exercises) {
+          // Find category by exercise name
+          const meta = exercises.find(e => e.name === ex.exerciseName);
+          if (meta && categoryCounts.hasOwnProperty(meta.category)) {
+            categoryCounts[meta.category]++;
+          }
+
+          if (ex.exerciseType === 'Distance') {
+            cardio++;
+            if (typeof ex.distance === 'number' && !isNaN(ex.distance)) {
+              distance += ex.distance;
+            }
+          }
+          if (ex.exerciseType === 'Rep') {
+            hasRepExercise = true;
+            weightLifted += (ex.weight || 0) * (ex.repetitions || 0);
+            sets++;
+          }
+        }
+
+        if (hasRepExercise) {
+          hypertrophy++;
+        }
+      }
+
+      setStats({
+        hypertrophy,
+        cardio,
+        weightLifted,
+        distance,
+        sets,
+      });
+
+      // Update pie chart values
+      setPieValues(PIE_LABELS.map((cat, idx) => ({
+        value: categoryCounts[cat],
+        color: PIE_COLORS[idx]
+      })));
+    }
+    calcStats();
+  }, [selected, startDate, endDate]);
+
   return (
     <View style={styles.root}>
       {/* Top Buttons */}
@@ -135,10 +254,10 @@ export default function StatisticsScreen() {
       </View>
 
       {/* Show selected dates below buttons if "Choose Dates" is selected */}
-      {selected === 2 && (
+      {selected === 3 && (
         <View style={styles.dateRangeContainer}>
           <Text style={styles.dateRangeText}>
-            {startDate ? formatDate(startDate) : 'Start date'} {'→'} {endDate ? formatDate(endDate) : 'End date'}
+            {startDate ? formatDate(startDate) : 'Start date'} : {endDate ? formatDate(endDate) : 'End date'}
           </Text>
         </View>
       )}
@@ -157,37 +276,43 @@ export default function StatisticsScreen() {
         <Text style={styles.sectionTitle}>Statistics</Text>
         <View style={styles.statsBlock}>
           <Text style={styles.statsLabel}>Workouts:</Text>
-          <Text style={styles.statsSubLabel}>- Hypertrophy: <Text style={styles.statsValue}>12</Text></Text>
-          <Text style={styles.statsSubLabel}>- Cardio: <Text style={styles.statsValue}>6</Text></Text>
-          <Text style={styles.statsLabel}>Weight lifted: <Text style={styles.statsValue}>12,500 kg</Text></Text>
-          <Text style={styles.statsLabel}>Distance covered: <Text style={styles.statsValue}>42 km</Text></Text>
-          <Text style={styles.statsLabel}>Sets: <Text style={styles.statsValue}>98</Text></Text>
+          <Text style={styles.statsSubLabel}>- Hypertrophy: <Text style={styles.statsValue}>{stats.hypertrophy}</Text></Text>
+          <Text style={styles.statsSubLabel}>- Cardio: <Text style={styles.statsValue}>{stats.cardio}</Text></Text>
+          <Text style={styles.statsLabel}>Weight lifted: <Text style={styles.statsValue}>{stats.weightLifted.toLocaleString()} kg</Text></Text>
+          <Text style={styles.statsLabel}>Distance covered: <Text style={styles.statsValue}>{(stats.distance).toFixed(1)} km</Text></Text>
+          <Text style={styles.statsLabel}>Sets: <Text style={styles.statsValue}>{stats.sets}</Text></Text>
         </View>
 
         {/* Training Volume Pie */}
         <Text style={styles.sectionTitle}>Training volume:</Text>
         <View style={styles.pieRow}>
-          <PieChart
-            widthAndHeight={140}
-            series={PIE_VALUES}
-          />
-          <View style={styles.pieLegendSpacer} /> {/* Add spacer */}
-          <View style={styles.pieLegend}>
-            {PIE_LABELS.map((label, idx) => (
-              <View key={label} style={styles.legendRow}>
-                <View style={[styles.legendColor, { backgroundColor: PIE_COLORS[idx] }]} />
-                <Text style={styles.legendText}>{label}</Text>
+          {pieValues.reduce((sum, v) => sum + v.value, 0) > 0 ? (
+            <>
+              <PieChart
+                widthAndHeight={140}
+                series={pieValues}
+              />
+              <View style={styles.pieLegendSpacer} /> {/* Add spacer */}
+              <View style={styles.pieLegend}>
+                {PIE_LABELS.map((label, idx) => (
+                  <View key={label} style={styles.legendRow}>
+                    <View style={[styles.legendColor, { backgroundColor: PIE_COLORS[idx] }]} />
+                    <Text style={styles.legendText}>{label}</Text>
+                  </View>
+                ))}
               </View>
-            ))}
-          </View>
+            </>
+          ) : (
+            <Text style={{ color: '#888', fontStyle: 'italic' }}>No data for selected dates</Text>
+          )}
         </View>
 
         {/* Progress */}
         <Text style={styles.sectionTitle}>Progress</Text>
         <View style={styles.statsBlock}>
-          <Text style={styles.statsLabel}>1RM Bench press: <Text style={styles.statsValue}>100 kg</Text></Text>
-          <Text style={styles.statsLabel}>1RM Squat: <Text style={styles.statsValue}>140 kg</Text></Text>
-          <Text style={styles.statsLabel}>1RM Deadlift: <Text style={styles.statsValue}>160 kg</Text></Text>
+          <Text style={styles.statsLabel}>1RM Bench press: <Text style={styles.statsValue}>-</Text></Text>
+          <Text style={styles.statsLabel}>1RM Squat: <Text style={styles.statsValue}>-</Text></Text>
+          <Text style={styles.statsLabel}>1RM Deadlift: <Text style={styles.statsValue}>-</Text></Text>
         </View>
       </ScrollView>
 
@@ -218,7 +343,7 @@ const styles = StyleSheet.create({
     borderColor: '#9f1907ff',
     overflow: 'hidden',
     backgroundColor: 'transparent',
-    width: 320,
+    width: 400,
     height: 40,
   },
   segmentButton: {
@@ -246,6 +371,8 @@ const styles = StyleSheet.create({
     color: '#9f1907ff',
     fontWeight: 'bold',
     fontSize: 13,
+    textAlign: 'center',
+    textAlignVertical: 'center', // Add this line
   },
   segmentTextSelected: {
     color: '#9f1907ff',
