@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'; // Add this import 
 import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import { Audio } from 'expo-av'; // Add this import for beep sound
 import React, { useEffect, useState } from 'react';
-import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Animated, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { useWorkoutContext } from '../context/WorkoutContext'; // Add this import
 import { Exercise } from '../models/Exercise';
 import { Workout } from '../models/Workout';
@@ -27,6 +27,8 @@ export default function MyWorkoutScreen() {
   const { setWorkoutActive } = useWorkoutContext(); // Add this line
   const navigation = useNavigation(); // Add this line
   const [quitVisible, setQuitVisible] = useState(false); // Add this line
+  const [showRedFrame, setShowRedFrame] = useState(true);
+  const redFrameOpacity = React.useRef(new Animated.Value(1)).current;
 
   useEffect(() => {
     initializeDefaultWorkouts();
@@ -558,8 +560,34 @@ export default function MyWorkoutScreen() {
     }
   }, [currentExerciseIdx, selectedWorkout, timers, defaultTimerSeconds]);
 
+  useEffect(() => {
+    // Animate the red frame out after 1s
+    Animated.timing(redFrameOpacity, {
+      toValue: 0,
+      duration: 800,
+      useNativeDriver: true,
+      delay: 400, // show for 0.4s before fading
+    }).start(() => setShowRedFrame(false));
+  }, []);
+
   return (
     <View style={styles.container}>
+      {/* Red frame animation overlay */}
+      {showRedFrame && (
+        <Animated.View
+          pointerEvents="none"
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              borderWidth: 10,
+              borderColor: '#b71c1c',
+              borderRadius: 34,
+              opacity: redFrameOpacity,
+              zIndex: 99,
+            },
+          ]}
+        />
+      )}
       {/* Header row: Workout title + Quit button */}
       {workoutName && selectedWorkout && (
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 16, marginBottom: 12, paddingHorizontal: 16 }}>
