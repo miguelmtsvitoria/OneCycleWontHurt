@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
+import * as MailComposer from 'expo-mail-composer';
 import React, { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker"; // npm install react-native-modal-datetime-picker
@@ -178,9 +178,18 @@ export default function StatisticsScreen() {
       const json = JSON.stringify(exportData, null, 2);
       const fileUri = FileSystem.cacheDirectory + 'one-cycle-export.json';
       await FileSystem.writeAsStringAsync(fileUri, json, { encoding: FileSystem.EncodingType.UTF8 });
-      await Sharing.shareAsync(fileUri, {
-        mimeType: 'application/json',
-        dialogTitle: 'Export JSON',
+
+      const isAvailable = await MailComposer.isAvailableAsync();
+      if (!isAvailable) {
+        alert('Mail composer is not available on this device.');
+        return;
+      }
+
+      await MailComposer.composeAsync({
+        recipients: ['miglas.vitoria@gmail.com'], // You can pre-fill an email here if you want
+        subject: 'One Cycle Export',
+        body: 'Attached is your exported workout data.',
+        attachments: [fileUri],
       });
     } catch (e) {
       console.error('Export failed:', e);
