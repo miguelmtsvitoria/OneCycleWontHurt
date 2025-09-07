@@ -1,6 +1,6 @@
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import { useEffect, useRef, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist';
 import { Exercise, ExerciseCategory } from '../models/Exercise';
@@ -51,9 +51,17 @@ export default function ExercisesScreen() {
     const [deleteExerciseName, setDeleteExerciseName] = useState<string | null>(null);
     const [editDeleteExerciseName, setEditDeleteExerciseName] = useState<string | null>(null);
 
-    useEffect(() => {
-        loadExercises().then(setExercises);
-    }, []);
+    // Replace this:
+    // useEffect(() => {
+    //     loadExercises().then(setExercises);
+    // }, []);
+
+    // With this:
+    useFocusEffect(
+        React.useCallback(() => {
+            loadExercises().then(setExercises);
+        }, [])
+    );
 
     useEffect(() => {
         // Load workouts from storage on mount
