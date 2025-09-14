@@ -783,6 +783,8 @@ const styles = StyleSheet.create({
         padding: 24,
         borderRadius: 12,
         alignItems: 'center',
+        width: 700, // Reduced width for "Sure?" popup
+        maxWidth: '80%',
     },
     confirmText: {
         fontSize: 20,
