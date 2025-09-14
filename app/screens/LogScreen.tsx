@@ -29,21 +29,64 @@ export default function LogScreen() {
         if (!isActive) return;
         data.sort((a, b) => b.date.localeCompare(a.date));
         setWorkouts(data);
+
         // Mark dates with workouts (highlight with a colored circle)
         const marks: { [date: string]: any } = {};
         data.forEach(w => {
-          marks[w.date] = {
-            customStyles: {
-              container: {
-                backgroundColor: '#9f1907ff',
-                borderRadius: 16,
+          let hasRed = false;
+          let hasYellow = false;
+          w.exercises.forEach(ex => {
+            if (ex.exerciseType === 'Rep' || ex.exerciseType === 'Calisthenics') {
+              hasRed = true;
+            }
+            if (ex.exerciseType === 'Distance' || ex.exerciseType === 'Time') {
+              hasYellow = true;
+            }
+          });
+
+          if (hasRed && hasYellow) {
+            // Both: simulate half-red/half-yellow (use orange as a compromise)
+            marks[w.date] = {
+              customStyles: {
+                container: {
+                  backgroundColor: 'orange', // visually represents both
+                  borderRadius: 16,
+                },
+                text: {
+                  color: 'white',
+                  fontWeight: 'bold',
+                },
               },
-              text: {
-                color: 'white',
-                fontWeight: 'bold',
+            };
+          } else if (hasRed) {
+            // Red
+            marks[w.date] = {
+              customStyles: {
+                container: {
+                  backgroundColor: '#9f1907ff',
+                  borderRadius: 16,
+                },
+                text: {
+                  color: 'white',
+                  fontWeight: 'bold',
+                },
               },
-            },
-          };
+            };
+          } else if (hasYellow) {
+            // Yellow
+            marks[w.date] = {
+              customStyles: {
+                container: {
+                  backgroundColor: '#FFD600',
+                  borderRadius: 16,
+                },
+                text: {
+                  color: '#333',
+                  fontWeight: 'bold',
+                },
+              },
+            };
+          }
         });
         setMarkedDates(marks);
       }
@@ -129,18 +172,30 @@ export default function LogScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: '#e0e0e0' }}>
       {calendarVisible && (
-        <Calendar
-          style={styles.calendar}
-          markedDates={markedDates}
-          markingType={'custom'}
-          theme={{
-            todayTextColor: '#9f1907ff',
-            arrowColor: '#9f1907ff',
-            textDayFontWeight: 'bold',
-            textMonthFontWeight: 'bold',
-            textDayHeaderFontWeight: 'bold',
-          }}
-        />
+        <View style={styles.calendarArea}>
+          <View style={styles.legendContainer}>
+            <View style={styles.legendRow}>
+              <View style={[styles.legendCircle, { backgroundColor: '#9f1907ff' }]} />
+              <Text style={styles.legendText}>Muscle building day</Text>
+            </View>
+            <View style={styles.legendRow}>
+              <View style={[styles.legendCircle, { backgroundColor: '#FFD600' }]} />
+              <Text style={styles.legendText}>Cardio day</Text>
+            </View>
+          </View>
+          <Calendar
+            style={styles.calendar}
+            markedDates={markedDates}
+            markingType={'custom'}
+            theme={{
+              todayTextColor: '#9f1907ff',
+              arrowColor: '#9f1907ff',
+              textDayFontWeight: 'bold',
+              textMonthFontWeight: 'bold',
+              textDayHeaderFontWeight: 'bold',
+            }}
+          />
+        </View>
       )}
       <View style={styles.calendarButtonContainer}>
         <TouchableOpacity onPress={() => setCalendarVisible(v => !v)} style={styles.calendarButton}>
@@ -194,7 +249,7 @@ export default function LogScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16, backgroundColor: '#e0e0e0' },
-  calendarButtonContainer: { alignItems: 'center', marginTop: 0, marginBottom: 8 },
+  calendarButtonContainer: { alignItems: 'center', marginTop: 0, marginBottom: 0 },
   calendarButton: {
     backgroundColor: '#9f1907ff',
     paddingHorizontal: 24,
@@ -219,5 +274,43 @@ const styles = StyleSheet.create({
   exerciseRow: { marginBottom: 8 },
   exerciseName: { fontSize: 15, fontWeight: 'normal' },
   exerciseInfo: { fontSize: 14, color: '#333', marginLeft: 8 },
+  legendContainer: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+    marginLeft: 24,
+    marginBottom: 8,
+    marginTop: 4,
+  },
+  legendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 2,
+  },
+  legendCircle: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+  },
+  legendText: {
+    fontSize: 13,
+    color: '#333',
+  },
+  calendarArea: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginTop: 0,
+    marginBottom: 0,
+    paddingBottom: 12,
+    paddingTop: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
 });
 
