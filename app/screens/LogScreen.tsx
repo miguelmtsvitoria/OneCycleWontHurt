@@ -9,6 +9,12 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+const FILTERS = [
+  { label: 'All' },
+  { label: 'Muscle building' },
+  { label: 'Cardio days' },
+];
+
 export default function LogScreen() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [expanded, setExpanded] = useState<{ [key: number]: boolean }>({});
@@ -16,6 +22,7 @@ export default function LogScreen() {
   const scrollRef = useRef<ScrollView>(null);
   const [workoutRefs, setWorkoutRefs] = useState<React.RefObject<View>[]>([]);
   const [markedDates, setMarkedDates] = useState<{ [date: string]: any }>({});
+  const [selectedFilter, setSelectedFilter] = useState(0);
 
   useEffect(() => {
       initializeDefaultWorkoutDays();
@@ -161,9 +168,22 @@ export default function LogScreen() {
     }
   };
 
-  // Group workouts by month
-  const workoutsByMonth: { [month: string]: typeof workouts } = {};
-  workouts.forEach(w => {
+  // Filter workouts based on selected filter
+  const filteredWorkouts = workouts.filter(w => {
+    if (selectedFilter === 1) {
+      // Muscle building: at least one Rep or Calisthenics exercise
+      return w.exercises.some(ex => ex.exerciseType === 'Rep' || ex.exerciseType === 'Calisthenics');
+    } else if (selectedFilter === 2) {
+      // Cardio: at least one Distance or Time exercise
+      return w.exercises.some(ex => ex.exerciseType === 'Distance' || ex.exerciseType === 'Time');
+    }
+    // All: show all workouts
+    return true;
+  });
+
+  // Group filtered workouts by month
+  const workoutsByMonth: { [month: string]: typeof filteredWorkouts } = {};
+  filteredWorkouts.forEach(w => {
     const month = new Date(w.date).toLocaleString('default', { month: 'long', year: 'numeric' });
     if (!workoutsByMonth[month]) workoutsByMonth[month] = [];
     workoutsByMonth[month].push(w);
@@ -171,6 +191,7 @@ export default function LogScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: '#e0e0e0' }}>
+      {/* Calendar (if open) */}
       {calendarVisible && (
         <View style={styles.calendarArea}>
           <View style={styles.legendContainer}>
@@ -197,13 +218,37 @@ export default function LogScreen() {
           />
         </View>
       )}
+      {/* Calendar Button BELOW calendar (always visible) */}
       <View style={styles.calendarButtonContainer}>
         <TouchableOpacity onPress={() => setCalendarVisible(v => !v)} style={styles.calendarButton}>
           <Text style={styles.calendarButtonText}>Calendar</Text>
         </TouchableOpacity>
       </View>
+      {/* Filter Buttons BELOW calendar button */}
+      <View style={styles.segmentedControl}>
+        {FILTERS.map((btn, idx) => (
+          <TouchableOpacity
+            key={btn.label}
+            style={[
+              styles.segmentButton,
+              idx === 0 && styles.segmentLeft,
+              idx === FILTERS.length - 1 && styles.segmentRight,
+              selectedFilter === idx && styles.segmentSelected,
+            ]}
+            onPress={() => setSelectedFilter(idx)}
+            activeOpacity={0.85}
+          >
+            <Text style={[
+              styles.segmentText,
+              selectedFilter === idx && styles.segmentTextSelected
+            ]}>
+              {btn.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
       <ScrollView style={styles.container} ref={scrollRef}>
-        {workouts.length === 0 && (
+        {filteredWorkouts.length === 0 && (
           <Text style={styles.empty}>No workouts logged yet.</Text>
         )}
         {Object.entries(workoutsByMonth).map(([month, monthWorkouts]) => (
@@ -212,7 +257,6 @@ export default function LogScreen() {
               {month} - {monthWorkouts.length} workout{monthWorkouts.length !== 1 ? 's' : ''}
             </Text>
             {monthWorkouts.map((workout, idx) => {
-              // Find the global index for expanded/collapse and ref
               const globalIdx = workouts.findIndex(w => w === workout);
               return (
                 <View
@@ -311,6 +355,50 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
+  },
+  segmentedControl: {
+    flexDirection: 'row',
+    alignSelf: 'center',
+    marginTop: 18,
+    marginBottom: 10,
+    borderRadius: 15,
+    borderWidth: 3,
+    borderColor: '#9f1907ff',
+    overflow: 'hidden',
+    backgroundColor: 'transparent',
+    width: 260,
+    height: 40,
+  },
+  segmentButton: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    backgroundColor: 'transparent',
+    borderRightWidth: 1,
+    borderRightColor: '#9f1907ff',
+  },
+  segmentLeft: {
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+  },
+  segmentRight: {
+    borderTopRightRadius: 0,
+    borderBottomRightRadius: 0,
+    borderRightWidth: 0,
+  },
+  segmentSelected: {
+    backgroundColor: '#f7bdb7',
+  },
+  segmentText: {
+    color: '#9f1907ff',
+    fontWeight: 'bold',
+    fontSize: 13,
+    textAlign: 'center',
+    textAlignVertical: 'center',
+  },
+  segmentTextSelected: {
+    color: '#9f1907ff',
   },
 });
 
