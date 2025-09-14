@@ -63,6 +63,7 @@ export default function BottomTabs() {
                                         backgroundColor: isDisabled ? '#e0e0e0' : '#ff4343ff',
                                         justifyContent: 'center',
                                         alignItems: 'center',
+                                        alignSelf: 'center', // <-- Add this line
                                         marginTop: -20,
                                         borderWidth: 3,
                                         borderColor: isDisabled ? '#c9c9c9ff' : '#9c0000ff',
@@ -95,7 +96,7 @@ export default function BottomTabs() {
                     tabBarStyle: {
                         backgroundColor: '#e0e0e0',
                         borderTopColor: '#ccc',
-                        height: 60,
+                        height: 80,
                     },
                 };
             }}
