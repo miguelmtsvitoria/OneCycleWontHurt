@@ -1249,6 +1249,324 @@ export const DEFAULT_WORKOUT_DAYS: Workout[] = [
 			},
 		]
 	},
+	{
+		name: 'Miguel\'s Push day',
+		date: '2025-09-15',
+		exercises: [
+			{
+				exerciseName: 'Barbell Bench Press',
+				exerciseType: 'Rep',
+				weight: 80,
+				repetitions: 8,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Bench Press',
+				exerciseType: 'Rep',
+				weight: 70,
+				repetitions: 11,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Bench Press',
+				exerciseType: 'Rep',
+				weight: 70,
+				repetitions: 6,
+				time: 0,
+			},
+			{
+				exerciseName: 'Seated Lateral Raises',
+				exerciseType: 'Rep',
+				weight: 8,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Seated Lateral Raises',
+				exerciseType: 'Rep',
+				weight: 8,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Seated Lateral Raises',
+				exerciseType: 'Rep',
+				weight: 8,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Bench Press (Incline)',
+				exerciseType: 'Rep',
+				weight: 60,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Bench Press (Incline)',
+				exerciseType: 'Rep',
+				weight: 60,
+				repetitions: 6,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Bench Press (Incline)',
+				exerciseType: 'Rep',
+				weight: 60,
+				repetitions: 5,
+				time: 0,
+			}
+		]
+	},
+	{
+		name: 'Miguel\'s Pull day',
+		date: '2025-09-16',
+		exercises: [
+			{
+				exerciseName: 'Pull Up',
+				exerciseType: 'Calisthenics',
+				weight: 0,
+				repetitions: 10,
+				time: 0,
+			},
+			{
+				exerciseName: 'Pull Up',
+				exerciseType: 'Calisthenics',
+				weight: 0,
+				repetitions: 10,
+				time: 0,
+			},
+			{
+				exerciseName: 'Pull Up',
+				exerciseType: 'Calisthenics',
+				weight: 0,
+				repetitions: 9,
+				time: 0,
+			},
+			{
+				exerciseName: 'Pull Up',
+				exerciseType: 'Calisthenics',
+				weight: 0,
+				repetitions: 5,
+				time: 0,
+			},
+			{
+				exerciseName: 'Incline Dumbbell Curl',
+				exerciseType: 'Rep',
+				weight: 12,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Incline Dumbbell Curl',
+				exerciseType: 'Rep',
+				weight: 12,
+				repetitions: 10,
+				time: 0,
+			},
+			{
+				exerciseName: 'Incline Dumbbell Curl',
+				exerciseType: 'Rep',
+				weight: 12,
+				repetitions: 8,
+				time: 0,
+			},
+			{
+				exerciseName: 'Dumbbell Curl',
+				exerciseType: 'Rep',
+				weight: 12,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Dumbbell Curl',
+				exerciseType: 'Rep',
+				weight: 12,
+				repetitions: 10,
+				time: 0,
+			},
+			{
+				exerciseName: 'Dumbbell Curl',
+				exerciseType: 'Rep',
+				weight: 12,
+				repetitions: 8,
+				time: 0,
+			},
+		]
+	},
+	{
+		name: 'Miguel\'s Annual Leg day',
+		date: '2025-09-17',
+		exercises: [
+			{
+				exerciseName: 'Barbell Squat',
+				exerciseType: 'Rep',
+				weight: 50,
+				repetitions: 10,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Squat',
+				exerciseType: 'Rep',
+				weight: 60,
+				repetitions: 8,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Squat',
+				exerciseType: 'Rep',
+				weight: 70,
+				repetitions: 8,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Squat',
+				exerciseType: 'Rep',
+				weight: 80,
+				repetitions: 7,
+				time: 0,
+			},
+			{
+				exerciseName: 'Leg Extensions',
+				exerciseType: 'Rep',
+				weight: 40,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Leg Extensions',
+				exerciseType: 'Rep',
+				weight: 40,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Leg Extensions',
+				exerciseType: 'Rep',
+				weight: 40,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Leg Extensions',
+				exerciseType: 'Rep',
+				weight: 40,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Leg Extensions',
+				exerciseType: 'Rep',
+				weight: 40,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Leg Extensions',
+				exerciseType: 'Rep',
+				weight: 40,
+				repetitions: 12,
+				time: 0,
+			},
+		]
+	},
+	{
+		name: 'Miguel\'s Push day',
+		date: '2025-09-18',
+		exercises: [
+			{
+				exerciseName: 'Barbell Bench Press',
+				exerciseType: 'Rep',
+				weight: 80,
+				repetitions: 8,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Bench Press',
+				exerciseType: 'Rep',
+				weight: 70,
+				repetitions: 11,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Bench Press',
+				exerciseType: 'Rep',
+				weight: 70,
+				repetitions: 6,
+				time: 0,
+			},
+			{
+				exerciseName: 'Seated Lateral Raises',
+				exerciseType: 'Rep',
+				weight: 8,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Seated Lateral Raises',
+				exerciseType: 'Rep',
+				weight: 8,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Seated Lateral Raises',
+				exerciseType: 'Rep',
+				weight: 8,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Bench Press (Incline)',
+				exerciseType: 'Rep',
+				weight: 66,
+				repetitions: 8,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Bench Press (Incline)',
+				exerciseType: 'Rep',
+				weight: 60,
+				repetitions: 6,
+				time: 0,
+			},
+			{
+				exerciseName: 'Barbell Bench Press (Incline)',
+				exerciseType: 'Rep',
+				weight: 60,
+				repetitions: 5,
+				time: 0,
+			},
+			{
+				exerciseName: 'Egyptian Lateral Raises',
+				exerciseType: 'Rep',
+				weight: 8,
+				repetitions: 12,
+				time: 0,
+			},
+			{
+				exerciseName: 'Egyptian Lateral Raises',
+				exerciseType: 'Rep',
+				weight: 8,
+				repetitions: 9,
+				time: 0,
+			},
+			{
+				exerciseName: '3/2 Lateral Raises',
+				exerciseType: 'Rep',
+				weight: 6,
+				repetitions: 8,
+				time: 0,
+			},
+			{
+				exerciseName: '3/2 Lateral Raises',
+				exerciseType: 'Rep',
+				weight: 6,
+				repetitions: 6,
+				time: 0,
+			},
+		]
+	},
 ];
 
 export async function clearAllMyWorkouts() {
@@ -1274,7 +1592,7 @@ export async function saveMyWorkout(exercises: Workout[]) {
 }
 
 export async function loadMyWorkouts(): Promise<Workout[]> {
-	// clearAllMyWorkouts()
+	clearAllMyWorkouts()
 	try {
 		const json = await AsyncStorage.getItem(MYWORKOUTS_STORAGE_KEY);
 		return json ? JSON.parse(json) : [];
